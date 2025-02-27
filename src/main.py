@@ -8,7 +8,7 @@ dpg.create_context()
 
 time_to_burn = 10
 payload = 250
-isp = 0
+isp = 300
 
 
 def update():
@@ -23,9 +23,9 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     
 
     with dpg.tree_node(label="Advanved Variables"):
-        dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp)
-        dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload)
-        dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn)
+        dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001)
+        dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0)
+        dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0)
 
 
 with dpg.window(label="Mass Ratio", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[100,250], pos=[0, 250], no_focus_on_appearing=True):
