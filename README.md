@@ -3,7 +3,7 @@
 An application for optomizing the mass ratios for a multi-stage rocket. 
 
 
-Setup
+### Setup
 
 Download python version 3.11.7 or equivalent. 
 
@@ -14,7 +14,7 @@ pip install dearpygui
 
 Run the file `src/main.py`
 
-Features
+### Features
 - Change ISP of the rocket.
 - Optomize the booster size for a  pop-out booster with a variable burn time.
 - Change the payload of the rocket.
