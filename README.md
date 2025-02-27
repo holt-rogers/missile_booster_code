@@ -8,11 +8,11 @@ Setup
 Download python version 3.11.7 or equivalent. 
 
 Download the DearPyGUI library using the following command. 
-'''
+```
 pip install dearpygui
-'''
+```
 
-Run the file 'src/main.py'
+Run the file `src/main.py`
 
 Features
 - Change ISP of the rocket.
