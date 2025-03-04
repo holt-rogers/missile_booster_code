@@ -23,6 +23,10 @@ total_v = None
 def on_click():
     global mass_r1, mass_r2, mass_r3, isp, payload, time_to_burn, table
 
+    isp = dpg.get_value("isp")
+    payload = dpg.get_value("payload")
+    time_to_burn = dpg.get_value("burn_time")
+
     mass_r1, mass_r2, mass_r3 =  optimize_mass_ratio(isp, payload, dpg.get_value("booster_value"), time_to_burn)
     update_mass_ratio_visual()
     update_table()
@@ -94,9 +98,9 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     
 
     with dpg.tree_node(label="Advanved Variables"):
-        dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001)
-        dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True)
-        dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True)
+        dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001, tag = "isp")
+        dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True, tag = "payload")
+        dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
 
 
