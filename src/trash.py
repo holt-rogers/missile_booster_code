@@ -1,1 +1,1 @@
-ass Ratio Optomization For a 3-Stage Rocket
+imize_mass_ratio(isp, payload)

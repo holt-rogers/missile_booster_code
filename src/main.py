@@ -16,6 +16,7 @@ mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload)
 
 
 table = []
+total_v = None
 
 
 
@@ -24,7 +25,7 @@ def on_click():
 
     mass_r1, mass_r2, mass_r3 =  optimize_mass_ratio(isp, payload, dpg.get_value("booster_value"), time_to_burn)
     update_mass_ratio_visual()
-
+    update_table()
     
 
 
@@ -61,6 +62,27 @@ def update_mass_ratio_visual():
     dpg.configure_item("mr2_text", text="MR2:", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
     dpg.configure_item("mr3_text", text="MR3:", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
 
+def update_table():
+    global mass_r1, mass_r2, mass_r3, isp, table, total_v
+
+    v1, v2, v3 = delta_v(mass_r1, mass_r2, mass_r3, isp)
+    v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
+    dv = v1 + v2 + v3
+    dv = round(dv, 2)
+
+    dat = [
+        [1, mass_r1, v1],
+        [2, mass_r2, v2],
+        [3, mass_r3, v3]
+    ]
+
+    for i in range(3):
+        for j in range(3):
+            dpg.set_value(table[i][j], str(dat[i][j]))
+
+    dpg.set_value(total_v, f"Delta V: {dv}")
+
+
 def update():
     pass
     
@@ -74,7 +96,7 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     with dpg.tree_node(label="Advanved Variables"):
         dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001)
         dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True)
-        dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0, min_clamped=True)
+        dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True)
     
 
 
@@ -126,7 +148,8 @@ with dpg.window(label="Data", no_resize=True, no_close=True, no_move=True, no_co
                 for j in range(0, 3):
                     table[-1].append(dpg.add_text(data[i][j]))
 
-     dpg.add_text("Delta V: 300")
+     total_v = dpg.add_text("Delta V: 300")
+     update_table()
         
     
         
