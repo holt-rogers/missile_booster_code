@@ -11,9 +11,8 @@ time_to_burn = 10
 payload = 250
 isp = 300
 
-
-mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload)
-
+graph = None
+mass_r1, mass_r2, mass_r3 = 0,0,0
 
 table = []
 total_v = None
@@ -27,7 +26,8 @@ def on_click():
     payload = dpg.get_value("payload")
     time_to_burn = dpg.get_value("burn_time")
 
-    mass_r1, mass_r2, mass_r3 =  optimize_mass_ratio(isp, payload, dpg.get_value("booster_value"), time_to_burn)
+    mass_r1, mass_r2, mass_r3 =  optimize_mass_ratio(isp, payload, dpg.get_value("booster_value"), time_to_burn, graph)
+    mass_r1, mass_r2, mass_r3 = round(mass_r1, 3), round(mass_r2,3), round(mass_r3,3)
     update_mass_ratio_visual()
     update_table()
     
@@ -67,9 +67,9 @@ def update_mass_ratio_visual():
     dpg.configure_item("mr3_text", text="MR3:", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
 
 def update_table():
-    global mass_r1, mass_r2, mass_r3, isp, table, total_v
+    global mass_r1, mass_r2, mass_r3, isp, table, total_v, payload
 
-    v1, v2, v3 = delta_v(mass_r1, mass_r2, mass_r3, isp)
+    v1, v2, v3 = delta_v(mass_r1, mass_r2, mass_r3, payload, isp)
     v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
     dv = v1 + v2 + v3
     dv = round(dv, 2)
@@ -89,7 +89,13 @@ def update_table():
 
 def update():
     pass
-    
+
+# graphs window
+with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[535,500], pos=[350, 0], no_focus_on_appearing=True) as plots:
+    graph = plots
+
+mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload, graph=graph)
+mass_r1, mass_r2, mass_r3 = round(mass_r1, 3), round(mass_r2,3), round(mass_r3,3)
 # window for settings
 with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[350,250], no_title_bar=False):
     dpg.add_text("Mass Ratio Optomization For a 3-Stage Rocket")
@@ -159,9 +165,6 @@ with dpg.window(label="Data", no_resize=True, no_close=True, no_move=True, no_co
         
 
 
-# graphs window
-with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[535,500], pos=[350, 0], no_focus_on_appearing=True):
-    pass
 
 
 dpg.create_viewport(resizable=False, max_height=500, max_width=900, title="Missile Booster Code")
