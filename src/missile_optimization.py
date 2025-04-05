@@ -1,14 +1,19 @@
-from math import log
+from math import log, pi
 import dearpygui.dearpygui as dpg
 
 
+def calculate_propellent_mass(height, diameter, density):
+    # volume of cylinder times density
+    return height * (diameter/2)**2 * pi * density
 
-def optimize_mass_ratio(isp, payload, booster = False, time_to_burn = None, graph = None):
-    mass_propellant = 1500
-    mass_structure = 500
-    structural_efficiency = 0.1
+def find_structure_mass(efficiency, payload, propellent):
+    return (propellent + payload)/ efficiency
 
-    best_v = float("-inf")
+def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant ,booster = False, time_to_burn = None, graph = None):
+
+
+
+    best_v = float("-inf") 
     best_ratios = []
 
     speeds = []
@@ -28,11 +33,6 @@ def optimize_mass_ratio(isp, payload, booster = False, time_to_burn = None, grap
                     continue
 
                 mr1, mr2, mr3 = mr1/1000, mr2/1000, mr3/1000
-
-
-
-
-
                 v = sum(delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellant))
                 if v > best_v:
                     best_v = v
@@ -40,14 +40,16 @@ def optimize_mass_ratio(isp, payload, booster = False, time_to_burn = None, grap
 
                 speeds.append(v)
                 ratios.append(mr1)
+        return best_ratios
 
-
+'''
         if graph != None:
             with dpg.plot(parent=graph, label="TEST", height=300, width=600):
                 dpg.add_plot_axis(dpg.mvXAxis, label="x", tag  ="x_axis")
                 dpg.add_plot_axis(dpg.mvYAxis, label="y", tag="y_axis")
                 dpg.add_line_series(ratios, speeds, parent="y_axis")
         return best_ratios
+'''
 
 # note m1, m2 and m3 are equal to 
 

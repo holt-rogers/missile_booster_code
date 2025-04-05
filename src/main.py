@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from missile_optimization import optimize_mass_ratio, delta_v
+from missile_optimization import optimize_mass_ratio, delta_v, calculate_propellent_mass, find_structure_mass
 
 #im hacking you rn
 
@@ -9,7 +9,11 @@ dpg.create_context()
 
 time_to_burn = 10
 payload = 250
+height = 7.5
+diameter = .75
+density = 1500 # find source
 isp = 300
+structural_efficiency = 4
 
 graph = None
 mass_r1, mass_r2, mass_r3 = 0,0,0
@@ -21,12 +25,21 @@ total_v = None
 
 def on_click():
     global mass_r1, mass_r2, mass_r3, isp, payload, time_to_burn, table
+    global diameter, height, density, structural_efficiency
 
     isp = dpg.get_value("isp")
     payload = dpg.get_value("payload")
     time_to_burn = dpg.get_value("burn_time")
+    density = dpg.get_value("density")
+    height = dpg.get_value("height")
+    diameter = dpg.get_value("diameter")
+    structural_efficiency = dpg.get_value("efficiency")
 
-    mass_r1, mass_r2, mass_r3 =  optimize_mass_ratio(isp, payload, dpg.get_value("booster_value"), time_to_burn, graph)
+
+    propllent_mass = calculate_propellent_mass(height, diameter, density)
+    structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
+
+    mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, graph=graph)
     mass_r1, mass_r2, mass_r3 = round(mass_r1, 3), round(mass_r2,3), round(mass_r3,3)
     update_mass_ratio_visual()
     update_table()
@@ -43,14 +56,14 @@ def update_mass_ratio_visual():
     height = 150
 
 
-    pos1min = [pos_x, pos_y]
-    pos1max = [pos_x + width, pos_y + mass_r1*height]
+    pos3min = [pos_x, pos_y]
+    pos3max = [pos_x + width, pos_y + mass_r3*height]
 
-    pos2min = [pos_x, pos1max[1]]
+    pos2min = [pos_x, pos3max[1]]
     pos2max = [pos_x + width, pos2min[1] + height * mass_r2]
 
-    pos3min = [pos_x, pos2max[1]]
-    pos3max = [pos_x + width, pos3min[1] + height * mass_r3]
+    pos1min = [pos_x, pos2max[1]]
+    pos1max = [pos_x + width, pos1min[1] + height * mass_r1]
 
     border_color = (0,0,0,255)
 
@@ -68,24 +81,27 @@ def update_mass_ratio_visual():
 
 def update_table():
     global mass_r1, mass_r2, mass_r3, isp, table, total_v, payload
+    global diameter,height,structural_efficiency,density
 
-    # FIX ME
-    v1, v2, v3 = 1,2,3
+    mp = calculate_propellent_mass(height, diameter, density)
+    ms = find_structure_mass(structural_efficiency, payload, mp)
+    #
+    v1, v2, v3 = delta_v(mass_r1, mass_r2, mass_r3, isp, payload, ms, mp)
     v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
     dv = v1 + v2 + v3
     dv = round(dv, 2)
 
     dat = [
-        [1, mass_r1, v1],
+        [3, mass_r3, v3],
         [2, mass_r2, v2],
-        [3, mass_r3, v3]
+        [1, mass_r1, v1]
     ]
 
-    for i in range(3):
-        for j in range(3):
+    for i in range(2,-1,-1):
+        for j in range(2,-1,-1):
             dpg.set_value(table[i][j], str(dat[i][j]))
 
-    dpg.set_value(total_v, f"Delta V: {dv}")
+    dpg.set_value(total_v, f"Delta V: {dv} m/s")
 
 
 def update():
@@ -95,7 +111,10 @@ def update():
 with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[535,500], pos=[350, 0], no_focus_on_appearing=True) as plots:
     graph = plots
 
-mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload, graph=graph)
+propllent_mass = calculate_propellent_mass(height, diameter, density)
+structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
+
+mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, graph=graph)
 mass_r1, mass_r2, mass_r3 = round(mass_r1, 3), round(mass_r2,3), round(mass_r3,3)
 # window for settings
 with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[350,250], no_title_bar=False):
@@ -103,11 +122,19 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     dpg.add_checkbox(label="Pop-out booster", tag = "booster_value")
     dpg.add_button(label="Update Optomization", callback=on_click)
     
+    dpg.add_text("Advanced Variables")
+    with dpg.tree_node(label="Rocket Assumptions"):
 
-    with dpg.tree_node(label="Advanved Variables"):
         dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001, tag = "isp")
+        dpg.add_input_float(label="Fuel Density (kg/m^3)", width=100, step = 0, default_value=density, min_value=0, min_clamped=True, tag = "density")
+        dpg.add_input_float(label="Structural Efficieny", width=100, step = 0, default_value=structural_efficiency, min_value=0.001, min_clamped=True, tag = "efficiency")
+
+    with dpg.tree_node(label = "Problem Specifications"):
         dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True, tag = "payload")
+        dpg.add_input_float(label="Stack Hegith (m)", width=100, step = 0, default_value=height, min_value=0, min_clamped=True, tag = "height")
+        dpg.add_input_float(label="Rocket Diameter (m)", width=100, step = 0, default_value=diameter, min_value=0, min_clamped=True, tag = "diameter")
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
+        
     
 
 
@@ -159,7 +186,7 @@ with dpg.window(label="Data", no_resize=True, no_close=True, no_move=True, no_co
                 for j in range(0, 3):
                     table[-1].append(dpg.add_text(data[i][j]))
 
-     total_v = dpg.add_text("Delta V: 300")
+     total_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
      update_table()
         
     
