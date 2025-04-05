@@ -69,7 +69,8 @@ def update_mass_ratio_visual():
 def update_table():
     global mass_r1, mass_r2, mass_r3, isp, table, total_v, payload
 
-    v1, v2, v3 = delta_v(mass_r1, mass_r2, mass_r3, payload, isp)
+    # FIX ME
+    v1, v2, v3 = 1,2,3
     v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
     dv = v1 + v2 + v3
     dv = round(dv, 2)
