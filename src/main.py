@@ -123,7 +123,7 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     dpg.add_button(label="Update Optomization", callback=on_click)
     
     dpg.add_text("Advanced Variables")
-    with dpg.tree_node(label="Rocket Assumptions"):
+    with dpg.tree_node(label="Rocket Constants"):
 
         dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001, tag = "isp")
         dpg.add_input_float(label="Fuel Density (kg/m^3)", width=100, step = 0, default_value=density, min_value=0, min_clamped=True, tag = "density")
