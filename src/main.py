@@ -2,8 +2,6 @@ import dearpygui.dearpygui as dpg
 from missile_optimization import optimize_mass_ratio, delta_v, calculate_propellent_mass, find_structure_mass
 
 #im hacking you rn
-
-
 dpg.create_context()
 
 
@@ -17,6 +15,7 @@ structural_efficiency = 4
 
 graph = None
 mass_r1, mass_r2, mass_r3 = 0,0,0
+bmass_r1, bmass_r2, bmass_r3 = 0.6, 0.3, 0.1
 
 table = []
 total_v = None
@@ -47,7 +46,7 @@ def on_click():
 
 
 def update_mass_ratio_visual():
-    global mass_r1, mass_r2, mass_r3
+    global mass_r1, mass_r2, mass_r3, bmass_r1, bmass_r2, bmass_r3
 
     pos_x = 10
     pos_y = 10
@@ -75,9 +74,40 @@ def update_mass_ratio_visual():
     dpg.configure_item("mr2", pmin=pos2min, pmax=pos2max, color=border_color, thickness=1, fill=color2)
     dpg.configure_item("mr3", pmin=pos3min, pmax=pos3max, color=border_color, thickness=1, fill=color3)
 
-    dpg.configure_item("mr1_text", text="MR1:", pos = (pos1max[0] + 10, (pos1min[1] + pos1max[1])/2 -6), size = 12)
-    dpg.configure_item("mr2_text", text="MR2:", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
-    dpg.configure_item("mr3_text", text="MR3:", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
+    dpg.configure_item("mr1_text", text="S1", pos = (pos1max[0] + 10, (pos1min[1] + pos1max[1])/2 -6), size = 12)
+    dpg.configure_item("mr2_text", text="S2", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
+    dpg.configure_item("mr3_text", text="S3", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
+
+    pos_x = 110
+    pos_y = 10
+
+    width = 30
+    height = 150
+
+
+    pos3min = [pos_x, pos_y]
+    pos3max = [pos_x + width, pos_y + mass_r3*height]
+
+    pos2min = [pos_x, pos3max[1]]
+    pos2max = [pos_x + width, pos2min[1] + height * mass_r2]
+
+    pos1min = [pos_x, pos2max[1]]
+    pos1max = [pos_x + width, pos1min[1] + height * mass_r1]
+
+    border_color = (0,0,0,255)
+
+    color1 = (144, 169, 237, 255)
+    color2 = (182, 198, 242, 255)
+    color3 = (219, 227, 248, 255)
+
+    dpg.configure_item("mr1b", pmin=pos1min, pmax=pos1max, color=border_color, thickness=1, fill=color1)
+    dpg.configure_item("mr2b", pmin=pos2min, pmax=pos2max, color=border_color, thickness=1, fill=color2)
+    dpg.configure_item("mr3b", pmin=pos3min, pmax=pos3max, color=border_color, thickness=1, fill=color3)
+
+    dpg.configure_item("mr1b_text", text="B", pos = (pos1max[0] + 10, (pos1min[1] + pos1max[1])/2 -6), size = 12)
+    dpg.configure_item("mr2b_text", text="S1", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
+    dpg.configure_item("mr3b_text", text="S2", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
+
 
 def update_table():
     global mass_r1, mass_r2, mass_r3, isp, table, total_v, payload
@@ -108,7 +138,7 @@ def update():
     pass
 
 # graphs window
-with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[535,500], pos=[350, 0], no_focus_on_appearing=True) as plots:
+with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[535,500], pos=[506, 0], no_focus_on_appearing=True) as plots:
     graph = plots
 
 propllent_mass = calculate_propellent_mass(height, diameter, density)
@@ -117,9 +147,8 @@ structure_mass = find_structure_mass(structural_efficiency, payload, propllent_m
 mass_r1, mass_r2, mass_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, graph=graph)
 mass_r1, mass_r2, mass_r3 = round(mass_r1, 3), round(mass_r2,3), round(mass_r3,3)
 # window for settings
-with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[350,250], no_title_bar=False):
-    dpg.add_text("Mass Ratio Optomization For a 3-Stage Rocket")
-    dpg.add_checkbox(label="Pop-out booster", tag = "booster_value")
+with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[100,250], no_title_bar=False):
+    #dpg.add_text("Mass Ratio Optomization For a 3-Stage Rocket")
     dpg.add_button(label="Update Optomization", callback=on_click)
     
     dpg.add_text("Advanced Variables")
@@ -135,12 +164,11 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
         dpg.add_input_float(label="Rocket Diameter (m)", width=100, step = 0, default_value=diameter, min_value=0, min_clamped=True, tag = "diameter")
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
         
-    
 
 
-with dpg.window(label="Mass Ratio", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[100,250], pos=[0, 250], no_focus_on_appearing=True):
+with dpg.window(label="Rocket Visualizations", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[150,250], pos=[0, 250], no_focus_on_appearing=True):
     # draw mass ratio representations
-    with dpg.drawlist(width=70, height=250):
+    with dpg.drawlist(width=191, height=150):
         # Draw a rectangle from (50, 50) to (200, 200)
 
         # add values but tag are calculated and overriden in update_mass_ratio_visual
@@ -152,13 +180,22 @@ with dpg.window(label="Mass Ratio", no_resize=True, no_close=True, no_move=True,
         dpg.draw_text(pos = [0.0], text = "", tag = "mr2_text")
         dpg.draw_text(pos = [0.0], text = "", tag = "mr3_text")
 
+        # same for booster stage
+        dpg.draw_rectangle(pmin = 0, pmax = 0, tag = "mr1b")
+        dpg.draw_rectangle(pmin = 0, pmax = 0, tag = "mr2b")
+        dpg.draw_rectangle(pmin = 0, pmax = 0, tag = "mr3b")
+
+        dpg.draw_text(pos = [0.0], text = "", tag = "mr1b_text")
+        dpg.draw_text(pos = [0.0], text = "", tag = "mr2b_text")
+        dpg.draw_text(pos = [0.0], text = "", tag = "mr3b_text")
+
         update_mass_ratio_visual()
     
 
 
 
-with dpg.window(label="Data", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[250,250], pos=[100, 250], no_focus_on_appearing=True):
-    
+with dpg.window(label="Data", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,500],max_size=[300,500], pos=[207, 0], no_focus_on_appearing=True, no_scrollbar = True):
+     dpg.add_text("Optimized Rocket")
      with dpg.table(header_row=True, row_background=True,
                    borders_innerH=True, borders_outerH=True, borders_innerV=True,
                    borders_outerV=True):
@@ -188,8 +225,38 @@ with dpg.window(label="Data", no_resize=True, no_close=True, no_move=True, no_co
 
      total_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
      update_table()
-        
-    
+
+     dpg.add_text("Optimized Rocket with Booster Stage")
+
+     with dpg.table(header_row=True, row_background=True,
+                   borders_innerH=True, borders_outerH=True, borders_innerV=True,
+                   borders_outerV=True):
+
+        # use add_table_column to add columns to the table,
+        # table columns use child slot 0
+        dpg.add_table_column(label = "Stage")
+        dpg.add_table_column(label = "MR")
+        dpg.add_table_column(label = "V")
+
+        # add_table_next_column will jump to the next row
+        # once it reaches the end of the columns
+        # table next column use slot 1
+
+
+        data = [
+            [1, 0.1, 100],
+            [2, 0.2, 100],
+            [3, 0.7, 100]
+        ]
+
+        for i in range(0, 3):
+            with dpg.table_row():
+                table.append([])
+                for j in range(0, 3):
+                    table[-1].append(dpg.add_text(data[i][j]))
+
+     total_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
+     update_table()    
         
 
 
@@ -205,4 +272,4 @@ while dpg.is_dearpygui_running():
     dpg.render_dearpygui_frame()
 
 dpg.start_dearpygui()
-dpg.destroy_context()
+dpg.destroy_context() 
