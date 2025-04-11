@@ -14,7 +14,7 @@ def get_lowest_v():
 
 # this functions returns the proportion of each size
 # the name is really misleading, my bad
-def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap = [], graph = None):
+def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap = []):
     global lowest_v
 
     best_v = float("-inf") 
@@ -46,16 +46,8 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
 
     return best_ratios
 
-'''
-        if graph != None:
-            with dpg.plot(parent=graph, label="TEST", height=300, width=600):
-                dpg.add_plot_axis(dpg.mvXAxis, label="x", tag  ="x_axis")
-                dpg.add_plot_axis(dpg.mvYAxis, label="y", tag="y_axis")
-                dpg.add_line_series(ratios, speeds, parent="y_axis")
-        return best_ratios
-'''
 
-def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn, graph = None):
+def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn, booster_v = []):
     # calculate mass ratio of the booster stage
     mr1 = (mass_propellant + mass_structure + payload) * (1  - e**(-time_to_burn/(2*isp))) / mass_propellant
 
@@ -67,7 +59,7 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
         mr3 = 1 - mr2 - mr1
 
         v = sum(list(delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellant)))
-
+        booster_v.append(v)
         if v > best_v:
             best_v = v
             best_ratios = [mr1, mr2, mr3]

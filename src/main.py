@@ -13,7 +13,7 @@ density = 1500 # find source
 isp = 300
 structural_efficiency = 4
 
-graph = None
+
 stage_r1, stage_r2, stage_r3 = 0,0,0
 bstage_r1, bstage_r2, bstage_r3 = 0.2, 0.5, 0.3
 
@@ -23,6 +23,8 @@ total_v = None
 btotal_v = None
 
 heatmap_v = []
+
+booster_v = []
 
 def on_click():
     global stage_r1, stage_r2, stage_r3, isp, payload, time_to_burn, table, bstage_r1, bstage_r2, bstage_r3
@@ -41,7 +43,7 @@ def on_click():
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
     bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn)
-    stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, graph=graph, heatmap=heatmap_v)
+    stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
     stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
     update_mass_ratio_visual()
     update_table()
@@ -158,25 +160,32 @@ def update():
 propllent_mass = calculate_propellent_mass(height, diameter, density)
 structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
-stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, graph=graph, heatmap=heatmap_v)
+stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
 stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
-bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn)
+bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
 bstage_r1, bstage_r2, bstage_r3 = round(bstage_r1, 3), round(bstage_r2,3), round(bstage_r3,3)
 # graphs window
-with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,500], max_size = [459, 500], pos=[424, 0], no_focus_on_appearing=True) as plots:
-    graph = plots
-
+with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,460], max_size = [459, 460], pos=[424, 0], no_focus_on_appearing=True) as plots:
 
     with dpg.tree_node(label = "Optimization Graphs"):
         dpg.add_text("Without Pop-out Booster")
         with dpg.group(horizontal=True):
-            #heatmap_v.rep
-            dpg.add_colormap_scale(min_scale=0, max_scale=10, height=200, colormap = dpg.mvPlotColormap_Plasma)
+            dpg.add_colormap_scale(min_scale=get_lowest_v(), max_scale=max(heatmap_v), height=200, colormap = dpg.mvPlotColormap_Plasma)
             with dpg.plot(label="Stage Size vs. V", no_mouse_pos=True, height=200, width=-1):
                 dpg.bind_colormap(dpg.last_item(), dpg.mvPlotColormap_Plasma)  
                 dpg.add_plot_axis(dpg.mvXAxis, label="Stage 1", lock_min=True, lock_max=True, no_gridlines=True, no_tick_marks=True)
                 with dpg.plot_axis(dpg.mvYAxis, label="Stage 2", no_gridlines=True, no_tick_marks=True, lock_min=True, lock_max=True):
                     dpg.add_heat_series(heatmap_v, 100, 100, tag="heat_series",scale_min=get_lowest_v(), scale_max=max(heatmap_v), format="")
+        dpg.add_text("With Pop-out Booster")
+
+        with dpg.plot(label = "Stage Size vs. V"):
+            dpg.add_plot_axis(dpg.mvXAxis, label="Stage 1", tag = "x_axis", lock_min=True, lock_max=True)
+            dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis", lock_min=True, lock_max=True)  
+
+            dpg.set_axis_limits("x_axis", 0, 1.2)
+            dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
+
+            dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, label="0.5 + 0.5 * sin(x)", parent="y_axis")
                 
 
                 
