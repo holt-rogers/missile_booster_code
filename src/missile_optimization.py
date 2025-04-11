@@ -110,5 +110,33 @@ def mass_ratios(stage1, stage2, stage3, payload, mass_structure, mass_propellent
 
     return mr1, mr2, mr3
 
+def generate_trajectory(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellent, x_points, y_points):
+    point_count = 1000
+    g = 9.8
+    pl = payload
+    v1, v2, v3 = delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellent)
 
+    ms1 = mr1 * mass_structure
+    ms2 = mr2 * mass_structure
+    ms3 = mr3 * mass_structure
 
+    mp1 = mr1 * mass_propellent
+    mp2 = mr2 * mass_propellent
+    mp3 = mr3 * mass_propellent
+
+    for i in range(1,point_count+1):
+        x = mass_propellent * i / point_count
+        y = 0
+        # see which stage we are on
+        if i/point_count < mr1:
+            mp = mass_propellent * i/point_count
+            y = g * isp * log(1 + mp /(mp3 + ms3 + mp2 + ms2 + ms1 + pl))
+        elif i/point_count < mr1 + mr2:
+            mp = mass_propellent * (i/point_count - mr1)
+            y = v1 + g * isp * log(1 + mp /(mp3 + ms3 + ms2 + pl))
+        else:
+            mp = mass_propellent * (i/point_count - mr1 - mr2)
+            y = v1 + v2 + g * isp * log(1 + mp/(ms3 + pl))
+
+        x_points.append(x)
+        y_points.append(y)

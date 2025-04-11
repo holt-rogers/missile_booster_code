@@ -26,6 +26,10 @@ heatmap_v = []
 
 booster_v = []
 
+x_propellent = []
+graph_velocity = []
+graph_booster_velocity = []
+
 def on_click():
     global stage_r1, stage_r2, stage_r3, isp, payload, time_to_burn, table, bstage_r1, bstage_r2, bstage_r3
     global diameter, height, density, structural_efficiency, heatmap_v
@@ -164,34 +168,42 @@ stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass,
 stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
 bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
 bstage_r1, bstage_r2, bstage_r3 = round(bstage_r1, 3), round(bstage_r2,3), round(bstage_r3,3)
+generate_trajectory(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass, x_propellent, graph_velocity)
+
 # graphs window
 with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,460], max_size = [459, 460], pos=[424, 0], no_focus_on_appearing=True) as plots:
-    with dpg.tree_node(label = "With vs. Without Booster Stage"):
-
-        with dpg.plot(label = "Total Delta V after each stage"):
+    with dpg.tree_node(label = "Velocity Comparisons", default_open = True):
+        dpg.add_text("The total velocity after each stage. ")
+        with dpg.plot(label = "V after Stage", no_mouse_pos = True):
             v1, v2, v3 = delta_v(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass)
             bv1, bv2, bv3 = delta_v(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass)
 
             dpg.add_plot_legend()
 
             # create x axis
-            dpg.add_plot_axis(dpg.mvXAxis, label="Student", no_gridlines=True)
+            dpg.add_plot_axis(dpg.mvXAxis, label="Stage", no_gridlines=True)
             dpg.set_axis_limits(dpg.last_item(), 9, 33)
             dpg.set_axis_ticks(dpg.last_item(), (("S1", 11), ("S2", 21), ("S3", 31)))
-            #dpg.add_plot_axis(dpg.mvXAxis2, label="hor_value", no_gridlines=True)
-            #dpg.set_axis_limits(dpg.last_item(), 0, 110)
                             
                 
             # create y axis
-            with dpg.plot_axis(dpg.mvYAxis, label="Score"):
+            with dpg.plot_axis(dpg.mvYAxis, label="V (m/s)"):
                 dpg.set_axis_limits(dpg.last_item(), 0, v1 + v2 + v3 + (v1 + v2 + v3)/10)
                 dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series", label="Without Booster", weight=1)
                 dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], label="With Booster", weight=1)
+        dpg.add_text("The total velocity compared to propellent used.")
+        with dpg.plot(label = "Velocity vs. Propellent"):
+            dpg.add_plot_axis(dpg.mvXAxis, label="Propellent", tag = "x_axis_traj", lock_min=True, lock_max=True)
+            dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis_traj", lock_min=True, lock_max=True)  
+            
 
+            dpg.set_axis_limits("x_axis_traj", min(x_propellent), max(x_propellent))
+            dpg.set_axis_limits("y_axis_traj", min(graph_velocity), max(graph_velocity) + 1000)
+    
 
+            dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj")
 
-
-    with dpg.tree_node(label = "Optimization Graphs"):
+    with dpg.tree_node(label = "Optimization Graphs", default_open = True):
         dpg.add_text("Without Pop-out Booster")
         with dpg.group(horizontal=True):
             dpg.add_colormap_scale(min_scale=get_lowest_v(), max_scale=max(heatmap_v), height=200, colormap = dpg.mvPlotColormap_Plasma)
