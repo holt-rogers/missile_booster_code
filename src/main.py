@@ -102,9 +102,9 @@ def update_mass_ratio_visual():
     dpg.configure_item("mr2b", pmin=pos2min, pmax=pos2max, color=border_color, thickness=1, fill=color2)
     dpg.configure_item("mr3b", pmin=pos3min, pmax=pos3max, color=border_color, thickness=1, fill=color3)
 
-    dpg.configure_item("mr1b_text", text="B", pos = (pos1max[0] + 10, (pos1min[1] + pos1max[1])/2 -6), size = 12)
-    dpg.configure_item("mr2b_text", text="S1", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
-    dpg.configure_item("mr3b_text", text="S2", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
+    dpg.configure_item("mr1b_text", text="S1", pos = (pos1max[0] + 10, (pos1min[1] + pos1max[1])/2 -6), size = 12)
+    dpg.configure_item("mr2b_text", text="S2", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
+    dpg.configure_item("mr3b_text", text="S3", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
 
 
 def update_table():
@@ -143,9 +143,9 @@ def update_table():
     mr1, mr2, mr3 = round(mr1, 3), round(mr2, 3), round(mr3, 3)
 
     dat = [
-        [2, mr3, v3],
-        [1, mr2, v2],
-        ["Booster", mr1, v1]
+        [3, mr3, v3],
+        [2, mr2, v2],
+        [1, mr1, v1]
     ]
 
     for i in range(2,-1,-1):
@@ -166,6 +166,30 @@ bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass,
 bstage_r1, bstage_r2, bstage_r3 = round(bstage_r1, 3), round(bstage_r2,3), round(bstage_r3,3)
 # graphs window
 with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,460], max_size = [459, 460], pos=[424, 0], no_focus_on_appearing=True) as plots:
+    with dpg.tree_node(label = "With vs. Without Booster Stage"):
+
+        with dpg.plot(label = "Total Delta V after each stage"):
+            v1, v2, v3 = delta_v(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass)
+            bv1, bv2, bv3 = delta_v(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass)
+
+            dpg.add_plot_legend()
+
+            # create x axis
+            dpg.add_plot_axis(dpg.mvXAxis, label="Student", no_gridlines=True)
+            dpg.set_axis_limits(dpg.last_item(), 9, 33)
+            dpg.set_axis_ticks(dpg.last_item(), (("S1", 11), ("S2", 21), ("S3", 31)))
+            #dpg.add_plot_axis(dpg.mvXAxis2, label="hor_value", no_gridlines=True)
+            #dpg.set_axis_limits(dpg.last_item(), 0, 110)
+                            
+                
+            # create y axis
+            with dpg.plot_axis(dpg.mvYAxis, label="Score"):
+                dpg.set_axis_limits(dpg.last_item(), 0, v1 + v2 + v3 + (v1 + v2 + v3)/10)
+                dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series", label="Without Booster", weight=1)
+                dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], label="With Booster", weight=1)
+
+
+
 
     with dpg.tree_node(label = "Optimization Graphs"):
         dpg.add_text("Without Pop-out Booster")
@@ -179,13 +203,16 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
         dpg.add_text("With Pop-out Booster")
 
         with dpg.plot(label = "Stage Size vs. V"):
-            dpg.add_plot_axis(dpg.mvXAxis, label="Stage 1", tag = "x_axis", lock_min=True, lock_max=True)
+            dpg.add_plot_axis(dpg.mvXAxis, label="Stage 2", tag = "x_axis", lock_min=True, lock_max=True)
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis", lock_min=True, lock_max=True)  
+            
 
             dpg.set_axis_limits("x_axis", 0, 1.2)
             dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
 
             dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, label="0.5 + 0.5 * sin(x)", parent="y_axis")
+
+    
                 
 
                 
