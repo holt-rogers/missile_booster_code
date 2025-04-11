@@ -169,6 +169,7 @@ stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stag
 bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
 bstage_r1, bstage_r2, bstage_r3 = round(bstage_r1, 3), round(bstage_r2,3), round(bstage_r3,3)
 generate_trajectory(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass, x_propellent, graph_velocity)
+generate_trajectory(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass, [], graph_booster_velocity)
 
 # graphs window
 with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,460], max_size = [459, 460], pos=[424, 0], no_focus_on_appearing=True) as plots:
@@ -193,6 +194,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
                 dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], label="With Booster", weight=1)
         dpg.add_text("The total velocity compared to propellent used.")
         with dpg.plot(label = "Velocity vs. Propellent"):
+            dpg.add_plot_legend()
             dpg.add_plot_axis(dpg.mvXAxis, label="Propellent", tag = "x_axis_traj", lock_min=True, lock_max=True)
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis_traj", lock_min=True, lock_max=True)  
             
@@ -201,7 +203,8 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.set_axis_limits("y_axis_traj", min(graph_velocity), max(graph_velocity) + 1000)
     
 
-            dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj")
+            dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj", label = "Without Booster")
+            dpg.add_line_series(x_propellent, graph_booster_velocity, parent="y_axis_traj", label = "With Booster")
 
     with dpg.tree_node(label = "Optimization Graphs", default_open = True):
         dpg.add_text("Without Pop-out Booster")
