@@ -1,7 +1,7 @@
 from math import log, pi, e
 import dearpygui.dearpygui as dpg
 
-
+lowest_v = float("inf")
 def calculate_propellent_mass(height, diameter, density):
     # volume of cylinder times density
     return height * (diameter/2)**2 * pi * density
@@ -9,32 +9,41 @@ def calculate_propellent_mass(height, diameter, density):
 def find_structure_mass(efficiency, payload, propellent):
     return (propellent + payload)/ efficiency
 
+def get_lowest_v():
+    return lowest_v
 
 # this functions returns the proportion of each size
 # the name is really misleading, my bad
-def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, graph = None):
+def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap = [], graph = None):
+    global lowest_v
 
     best_v = float("-inf") 
     best_ratios = []
 
-    speeds = []
-    ratios = []
 
 
     # looping through the possible range of fuel we can use 
-    for mr1 in range(334, 999):
-        for mr2 in range(1, 1000 - mr1):
+    for mr2 in range(1000, -1, -1):
+        for mr1 in range(0, 1001):
+            
             mr3 = 1000 - mr1 - mr2
+            if mr3 <= 0:
+                if (mr1 - 1) % 10 == 0 and (mr2 - 1) % 10 == 0:
+                    heatmap.append(0)
+                continue
             # first has to be largest
 
             mr1_2, mr2_2, mr3_2 = mr1/1000, mr2/1000, mr3/1000
             v = sum(list(delta_v(mr1_2, mr2_2, mr3_2, isp, payload, mass_structure, mass_propellant)))
+            if (mr1 - 1) % 10 == 0 and (mr2 - 1) % 10 == 0:
+                heatmap.append(v)
+            #heatmap.append(v)
             if v > best_v:
                 best_v = v
                 best_ratios = [mr1_2, mr2_2, mr3_2]
+            if v < lowest_v:
+                lowest_v = v
 
-            speeds.append(v)
-            ratios.append(mr1)
     return best_ratios
 
 '''
@@ -53,7 +62,7 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
     best_v = float("-inf")
     best_ratios = []
 
-    for proportion in range(1, 990):
+    for proportion in range(0, 1001):
         mr2 = proportion/1000
         mr3 = 1 - mr2 - mr1
 
@@ -62,7 +71,6 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
         if v > best_v:
             best_v = v
             best_ratios = [mr1, mr2, mr3]
-    print(*best_ratios)
     return best_ratios
 
 
