@@ -173,7 +173,7 @@ generate_trajectory(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass
 
 # graphs window
 with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,460], max_size = [459, 460], pos=[424, 0], no_focus_on_appearing=True) as plots:
-    with dpg.tree_node(label = "Velocity Comparisons", default_open = True):
+    with dpg.tree_node(label = "Velocity Comparisons of Optimized Rockets", default_open = True):
         dpg.add_text("The total velocity after each stage. ")
         with dpg.plot(label = "V after Stage", no_mouse_pos = True):
             v1, v2, v3 = delta_v(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass)
@@ -195,7 +195,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
         dpg.add_text("The total velocity compared to propellent used.")
         with dpg.plot(label = "Velocity vs. Propellent"):
             dpg.add_plot_legend()
-            dpg.add_plot_axis(dpg.mvXAxis, label="Propellent", tag = "x_axis_traj", lock_min=True, lock_max=True)
+            dpg.add_plot_axis(dpg.mvXAxis, label="Propellent (kg)", tag = "x_axis_traj", lock_min=True, lock_max=True)
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis_traj", lock_min=True, lock_max=True)  
             
 
@@ -206,7 +206,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj", label = "Without Booster")
             dpg.add_line_series(x_propellent, graph_booster_velocity, parent="y_axis_traj", label = "With Booster")
 
-    with dpg.tree_node(label = "Optimization Graphs", default_open = True):
+    with dpg.tree_node(label = "Optimization Process", default_open = True):
         dpg.add_text("Without Pop-out Booster")
         with dpg.group(horizontal=True):
             dpg.add_colormap_scale(min_scale=get_lowest_v(), max_scale=max(heatmap_v), height=200, colormap = dpg.mvPlotColormap_Plasma)
@@ -225,7 +225,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.set_axis_limits("x_axis", 0, 1.2)
             dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
 
-            dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, label="0.5 + 0.5 * sin(x)", parent="y_axis")
+            dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, parent="y_axis")
 
     
                 
@@ -248,7 +248,7 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
 
     with dpg.tree_node(label = "Problem Specifications"):
         dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True, tag = "payload")
-        dpg.add_input_float(label="Stack Hegith (m)", width=100, step = 0, default_value=height, min_value=0, min_clamped=True, tag = "height")
+        dpg.add_input_float(label="Stack Height (m)", width=100, step = 0, default_value=height, min_value=0, min_clamped=True, tag = "height")
         dpg.add_input_float(label="Rocket Diameter (m)", width=100, step = 0, default_value=diameter, min_value=0, min_clamped=True, tag = "diameter")
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
