@@ -2,6 +2,8 @@ from math import log, pi, e
 import dearpygui.dearpygui as dpg
 
 lowest_v = float("inf")
+
+
 def calculate_propellent_mass(height, diameter, density):
     # volume of cylinder times density
     return height * (diameter/2)**2 * pi * density
@@ -57,6 +59,8 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
     for proportion in range(0, 1001):
         mr2 = proportion/1000
         mr3 = 1 - mr2 - mr1
+        if mr3 <= 0:
+            continue
 
         v = sum(list(delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellant)))
         booster_v.append(v)
@@ -83,7 +87,7 @@ def delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellent):
 
 
     # shorten bc typing is for losers
-
+    #print(mp3, ms3, pl)
     v3 = g * isp * log(1 + mp3/(ms3 + pl))
     v2 = g * isp * log(1 + mp2/(mp3 + ms3 + ms2 + pl))
     v1 = g * isp * log(1 + mp1/(mp3 + ms3 + mp2 + ms2 + ms1 + pl))

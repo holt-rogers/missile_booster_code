@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
 from missile_optimization import *
+from dearpygui_ext.themes import create_theme_imgui_light
 
 #im hacking you rn
 dpg.create_context()
@@ -7,8 +8,8 @@ dpg.create_context()
 
 time_to_burn = 10
 payload = 250
-height = 7.5
-diameter = .75
+height = 10
+diameter = 1
 density = 1500 # find source
 isp = 300
 structural_efficiency = 4
@@ -29,6 +30,9 @@ booster_v = []
 x_propellent = []
 graph_velocity = []
 graph_booster_velocity = []
+
+min_ratio = 0 
+max_ratio = 1
 
 def on_click():
     global stage_r1, stage_r2, stage_r3, isp, payload, time_to_burn, table, bstage_r1, bstage_r2, bstage_r3
@@ -227,13 +231,6 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
 
             dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, parent="y_axis")
 
-    
-                
-
-                
-
-
-
 # window for settings
 with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,150], max_size = [300,150], no_title_bar=False):
     #dpg.add_text("Mass Ratio Optomization For a 3-Stage Rocket")
@@ -253,8 +250,8 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
     with dpg.tree_node(label = "Constraints"):
-        dpg.add_input_float(label = "Min mass proportion", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True)
-        dpg.add_input_float(label = "Max mass proportion", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True)
+        dpg.add_input_float(label = "Min mass proportion", width=100, step = 0, default_value=min_ratio, min_value=0, min_clamped=True)
+        dpg.add_input_float(label = "Max mass proportion", width=100, step = 0, default_value=max_ratio, min_value=0, min_clamped=True)
         
 
 
@@ -355,6 +352,8 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
 
 
 dpg.create_viewport(resizable=False, max_height=500, max_width=900, title="Missile Booster Code")
+#light_theme = create_theme_imgui_light()
+#dpg.bind_theme(light_theme)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 

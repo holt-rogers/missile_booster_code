@@ -1,1 +1,1 @@
-add_plot_axis
+pg.bind_colormap(dpg.last_item(), dpg.mvPlotColormap_Plasma)
