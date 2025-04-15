@@ -1,1 +1,1 @@
-pg.bind_colormap(dpg.last_item(), dpg.mvPlotColormap_Plasma)
+"Max

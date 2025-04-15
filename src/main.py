@@ -31,7 +31,7 @@ x_propellent = []
 graph_velocity = []
 graph_booster_velocity = []
 
-min_ratio = 0 
+min_ratio = 0
 max_ratio = 1
 
 def on_click():
@@ -45,10 +45,14 @@ def on_click():
     height = dpg.get_value("height")
     diameter = dpg.get_value("diameter")
     structural_efficiency = dpg.get_value("efficiency")
+    min_ratio = dpg.get_value("min")
+    max_ratio = dpg.get_value("max")
+
 
     
     propllent_mass = calculate_propellent_mass(height, diameter, density)
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
+    set_constraints(min_ratio, max_ratio)
 
     bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn)
     stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
@@ -56,6 +60,8 @@ def on_click():
     update_mass_ratio_visual()
     update_table()
     
+def update_graphs():
+    pass
 
 
 def update_mass_ratio_visual():
@@ -165,6 +171,7 @@ def update_table():
 def update():
     pass
 
+set_constraints(min_ratio, max_ratio)
 propllent_mass = calculate_propellent_mass(height, diameter, density)
 structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
@@ -250,8 +257,8 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
     with dpg.tree_node(label = "Constraints"):
-        dpg.add_input_float(label = "Min mass proportion", width=100, step = 0, default_value=min_ratio, min_value=0, min_clamped=True)
-        dpg.add_input_float(label = "Max mass proportion", width=100, step = 0, default_value=max_ratio, min_value=0, min_clamped=True)
+        dpg.add_input_float(label = "Min mass proportion", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
+        dpg.add_input_float(label = "Max mass proportion", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
         
 
 
@@ -346,10 +353,6 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
 
      btotal_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
      update_table()
-        
-
-
-
 
 dpg.create_viewport(resizable=False, max_height=500, max_width=900, title="Missile Booster Code")
 #light_theme = create_theme_imgui_light()

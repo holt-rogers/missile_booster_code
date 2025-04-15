@@ -2,6 +2,13 @@ from math import log, pi, e
 import dearpygui.dearpygui as dpg
 
 lowest_v = float("inf")
+min_size = 0
+max_size = 1
+
+def set_constraints(mn, mx):
+    global min_size, max_size
+    min_size = mn
+    max_size = mx
 
 
 def calculate_propellent_mass(height, diameter, density):
@@ -18,6 +25,7 @@ def get_lowest_v():
 # the name is really misleading, my bad
 def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap = []):
     global lowest_v
+    global min_size, max_size
 
     best_v = float("-inf") 
     best_ratios = []
@@ -41,8 +49,9 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
                 heatmap.append(v)
             #heatmap.append(v)
             if v > best_v:
-                best_v = v
-                best_ratios = [mr1_2, mr2_2, mr3_2]
+                if max([mr1_2, mr2_2, mr3_2]) <= max_size and  min([mr1_2, mr2_2, mr3_2]) >= min_size:
+                    best_v = v
+                    best_ratios = [mr1_2, mr2_2, mr3_2]
             if v < lowest_v:
                 lowest_v = v
 
@@ -51,7 +60,10 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
 
 def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn, booster_v = []):
     # calculate mass ratio of the booster stage
+    global min_size, max_size
     mr1 = (mass_propellant + mass_structure + payload) * (1  - e**(-time_to_burn/(2*isp))) / mass_propellant
+    mr1 = max([min_size, mr1])
+    mr1 = min([max_size, mr1])
 
     best_v = float("-inf")
     best_ratios = []
@@ -65,8 +77,9 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
         v = sum(list(delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellant)))
         booster_v.append(v)
         if v > best_v:
-            best_v = v
-            best_ratios = [mr1, mr2, mr3]
+            if max([mr1, mr2, mr3]) <= max_size and  min([mr1, mr2, mr3]) >= min_size:
+                best_v = v
+                best_ratios = [mr1, mr2, mr3]
     return best_ratios
 
 
