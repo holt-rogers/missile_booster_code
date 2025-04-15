@@ -36,7 +36,9 @@ max_ratio = 1
 
 def on_click():
     global stage_r1, stage_r2, stage_r3, isp, payload, time_to_burn, table, bstage_r1, bstage_r2, bstage_r3
-    global diameter, height, density, structural_efficiency, heatmap_v
+    global diameter, height, density, structural_efficiency, heatmap_v, booster_v
+    heatmap_v.clear()
+    booster_v.clear()
 
     isp = dpg.get_value("isp")
     payload = dpg.get_value("payload")
@@ -54,14 +56,13 @@ def on_click():
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
     set_constraints(min_ratio, max_ratio)
 
-    bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn)
+    bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
     stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
     stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
     update_mass_ratio_visual()
     update_table()
-    
-def update_graphs():
-    pass
+    update_graph()
+
 
 
 def update_mass_ratio_visual():
@@ -167,7 +168,32 @@ def update_table():
             dpg.set_value(b_table[i][j], str(dat[i][j]))   
     dpg.set_value(btotal_v, f"Delta V: {dv} m/s") 
 
+def update_graph():
+    global x_propellent, graph_booster_velocity, graph_velocity, heatmap_v
+    x_propellent.clear()
+    graph_booster_velocity.clear()
+    graph_velocity.clear()
 
+    mp = calculate_propellent_mass(height, diameter, density)
+    ms = find_structure_mass(structural_efficiency, payload, mp)
+    v1, v2, v3 = delta_v(stage_r1, stage_r2, stage_r3, isp, payload,ms, mp)
+    bv1, bv2, bv3 = delta_v(bstage_r1, bstage_r2, bstage_r3, isp, payload,ms, mp)
+
+    dpg.configure_item("bar_series_without", x=[10, 20, 30], y=[v1, v1 + v2, v1 + v2 + v3])
+    dpg.configure_item("bar_series_with", x=[11, 21, 31],y=[bv1, bv1 + bv2, bv1+bv2+bv3])
+
+    generate_trajectory(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass, x_propellent, graph_velocity)
+    generate_trajectory(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass, [], graph_booster_velocity)
+
+    dpg.set_axis_limits("x_axis_traj", min(x_propellent), max(x_propellent))
+    dpg.set_axis_limits("y_axis_traj", 0, max(graph_velocity) + 1000)
+    dpg.configure_item("p_without", x = x_propellent, y = graph_velocity)
+    dpg.configure_item("p_with", x = x_propellent, y = graph_booster_velocity)
+
+    dpg.configure_item("heat_series", x = heatmap_v)
+    dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
+    dpg.configure_item("booster_optimization", y=booster_v)
+    
 def update():
     pass
 
@@ -201,8 +227,8 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             # create y axis
             with dpg.plot_axis(dpg.mvYAxis, label="V (m/s)"):
                 dpg.set_axis_limits(dpg.last_item(), 0, v1 + v2 + v3 + (v1 + v2 + v3)/10)
-                dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series", label="Without Booster", weight=1)
-                dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], label="With Booster", weight=1)
+                dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series_without", label="Without Booster", weight=1)
+                dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], tag="bar_series_with", label="With Booster", weight=1)
         dpg.add_text("The total velocity compared to propellent used.")
         with dpg.plot(label = "Velocity vs. Propellent"):
             dpg.add_plot_legend()
@@ -214,8 +240,8 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.set_axis_limits("y_axis_traj", min(graph_velocity), max(graph_velocity) + 1000)
     
 
-            dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj", label = "Without Booster")
-            dpg.add_line_series(x_propellent, graph_booster_velocity, parent="y_axis_traj", label = "With Booster")
+            dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj", label = "Without Booster", tag = "p_without")
+            dpg.add_line_series(x_propellent, graph_booster_velocity, parent="y_axis_traj", label = "With Booster", tag = "p_with")
 
     with dpg.tree_node(label = "Optimization Process", default_open = True):
         dpg.add_text("Without Pop-out Booster")
@@ -236,7 +262,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.set_axis_limits("x_axis", 0, 1.2)
             dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
 
-            dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, parent="y_axis")
+            dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, parent="y_axis", tag = "booster_optimization")
 
 # window for settings
 with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,150], max_size = [300,150], no_title_bar=False):
@@ -257,8 +283,8 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
     with dpg.tree_node(label = "Constraints"):
-        dpg.add_input_float(label = "Min mass proportion", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
-        dpg.add_input_float(label = "Max mass proportion", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
+        dpg.add_input_float(label = "Min stage size", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
+        dpg.add_input_float(label = "Max stage size", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
         
 
 
