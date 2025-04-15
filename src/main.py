@@ -138,13 +138,13 @@ def update_table():
     mr1, mr2, mr3 = round(mr1, 3), round(mr2, 3), round(mr3, 3)
 
     dat = [
-        [3, mr3, v3],
-        [2, mr2, v2],
-        [1, mr1, v1]
+        [3, round(stage_r3,3), mr3, v3],
+        [2, round(stage_r2,3), mr2, v2],
+        [1, round(stage_r1,3), mr1, v1]
     ]
 
     for i in range(2,-1,-1):
-        for j in range(2,-1,-1):
+        for j in range(3,-1,-1):
             dpg.set_value(table[i][j], str(dat[i][j]))
 
     dpg.set_value(total_v, f"Delta V: {dv} m/s")
@@ -158,13 +158,13 @@ def update_table():
     mr1, mr2, mr3 = round(mr1, 3), round(mr2, 3), round(mr3, 3)
 
     dat = [
-        [3, mr3, v3],
-        [2, mr2, v2],
-        [1, mr1, v1]
+        [3, round(bstage_r3,3),mr3, v3],
+        [2, round(bstage_r2,3),mr2, v2],
+        [1, round(bstage_r1,3),mr1, v1]
     ]
 
     for i in range(2,-1,-1):
-        for j in range(2,-1,-1):
+        for j in range(3,-1,-1):
             dpg.set_value(b_table[i][j], str(dat[i][j]))   
     dpg.set_value(btotal_v, f"Delta V: {dv} m/s") 
 
@@ -326,6 +326,7 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
         # use add_table_column to add columns to the table,
         # table columns use child slot 0
         dpg.add_table_column(label = "Stage")
+        dpg.add_table_column(label = "Size")
         dpg.add_table_column(label = "MR")
         dpg.add_table_column(label = "V")
 
@@ -335,15 +336,15 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
 
 
         data = [
-            [1, 0.1, 100],
-            [2, 0.2, 100],
-            [3, 0.7, 100]
+            [1, 0.1, 100, 0],
+            [2, 0.2, 100, 0],
+            [3, 0.7, 100, 0]
         ]
 
         for i in range(0, 3):
             with dpg.table_row():
                 table.append([])
-                for j in range(0, 3):
+                for j in range(0, 4):
                     table[-1].append(dpg.add_text(data[i][j]))
 
      total_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
@@ -357,6 +358,7 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
         # use add_table_column to add columns to the table,
         # table columns use child slot 0
         dpg.add_table_column(label = "Stage")
+        dpg.add_table_column(label = "Size")
         dpg.add_table_column(label = "MR")
         dpg.add_table_column(label = "V")
 
@@ -366,15 +368,15 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
 
 
         data = [
-            [1, 0.1, 100],
-            [2, 0.2, 100],
-            [3, 0.7, 100]
+            [1, 0.1, 100, 0],
+            [2, 0.2, 100, 0],
+            [3, 0.7, 100, 0]
         ]
 
         for i in range(0, 3):
             with dpg.table_row():
                 b_table.append([])
-                for j in range(0, 3):
+                for j in range(0, 4):
                     b_table[-1].append(dpg.add_text(data[i][j]))
 
      btotal_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
