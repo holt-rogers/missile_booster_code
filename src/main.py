@@ -239,8 +239,8 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
                 dpg.set_axis_limits(dpg.last_item(), 0, v1 + v2 + v3 + (v1 + v2 + v3)/10)
                 dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series_without", label="Without Booster", weight=1)
                 dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], tag="bar_series_with", label="With Booster", weight=1)
-        dpg.add_text("The total velocity compared to propellent used.")
-        with dpg.plot(label = "Velocity vs. Propellent"):
+        dpg.add_text("The total velocity compared to propellent used for both rockets.")
+        with dpg.plot(label = "V as propellent is used"):
             dpg.add_plot_legend()
             dpg.add_plot_axis(dpg.mvXAxis, label="Propellent (kg)", tag = "x_axis_traj", lock_min=True, lock_max=True)
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis_traj", lock_min=True, lock_max=True)  
@@ -257,15 +257,15 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
         dpg.add_text("Without Pop-out Booster")
         with dpg.group(horizontal=True):
             dpg.add_colormap_scale(min_scale=get_lowest_v(), max_scale=max(heatmap_v), height=200, colormap = dpg.mvPlotColormap_Plasma)
-            with dpg.plot(label="Stage Size vs. V", no_mouse_pos=True, height=200, width=-1):
+            with dpg.plot(label="V compared to Stage Mass Fraction", no_mouse_pos=True, height=200, width=-1):
                 dpg.bind_colormap(dpg.last_item(), dpg.mvPlotColormap_Plasma)  
-                dpg.add_plot_axis(dpg.mvXAxis, label="Stage 1", lock_min=True, lock_max=True, no_gridlines=True, no_tick_marks=True)
-                with dpg.plot_axis(dpg.mvYAxis, label="Stage 2", no_gridlines=True, no_tick_marks=True, lock_min=True, lock_max=True):
+                dpg.add_plot_axis(dpg.mvXAxis, label="Stage 1 Mass Fraction", lock_min=True, lock_max=True, no_gridlines=True, no_tick_marks=True)
+                with dpg.plot_axis(dpg.mvYAxis, label="Stage 2 Mass Fraction", no_gridlines=True, no_tick_marks=True, lock_min=True, lock_max=True):
                     dpg.add_heat_series(heatmap_v, 100, 100, tag="heat_series",scale_min=get_lowest_v(), scale_max=max(heatmap_v), format="")
         dpg.add_text("With Pop-out Booster")
 
-        with dpg.plot(label = "Stage Size vs. V"):
-            dpg.add_plot_axis(dpg.mvXAxis, label="Stage 2", tag = "x_axis", lock_min=True, lock_max=True)
+        with dpg.plot(label = "V compared to Stage Mass Fraction"):
+            dpg.add_plot_axis(dpg.mvXAxis, label="Stage 2 Mass Fraction", tag = "x_axis", lock_min=True, lock_max=True)
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis", lock_min=True, lock_max=True)  
             
 
@@ -294,8 +294,8 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     
     with dpg.tree_node(label = "Constraints"):
         dpg.add_checkbox(label = "Constrain Optimization", default_value = True, tag = "constrained")
-        dpg.add_input_float(label = "Min stage size", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
-        dpg.add_input_float(label = "Max stage size", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
+        dpg.add_input_float(label = "Min mass fraction", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
+        dpg.add_input_float(label = "Max mass fraction", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
         
 
 

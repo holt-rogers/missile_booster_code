@@ -42,8 +42,8 @@ These variables are specific to the problem we are solving. The default values h
 This section allows the user to enter constraints to stage size. This is useful since there is only a certain size that can practically be built in real life. 
 
 - `Constrain Optimization`: A checkbox determining if the constraints are applied. 
-- `Min size`: A values from 0-1 determing the smallest possible mass fraction. Not that any value above $1/3$ will obviously result in an impossible optimization. 
-- `Max size`: A values from 0-1 determing the largest possible mass fraction for a stage. Not that any value below $1/3$ will obviously result in an impossible optimization. 
+- `Min mass fraction`: A values from 0-1 determing the smallest possible mass fraction. Not that any value above $1/3$ will obviously result in an impossible optimization. 
+- `Max mass fraction`: A values from 0-1 determing the largest possible mass fraction for a stage. Not that any value below $1/3$ will obviously result in an impossible optimization. 
 
 ## Setup
 
