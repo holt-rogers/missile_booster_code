@@ -31,8 +31,8 @@ x_propellent = []
 graph_velocity = []
 graph_booster_velocity = []
 
-min_ratio = 0
-max_ratio = 1
+min_ratio = 0.1
+max_ratio = 0.8
 
 def on_click():
     global stage_r1, stage_r2, stage_r3, isp, payload, time_to_burn, table, bstage_r1, bstage_r2, bstage_r3
@@ -50,15 +50,20 @@ def on_click():
     min_ratio = dpg.get_value("min")
     max_ratio = dpg.get_value("max")
 
+    if dpg.get_value("constrained"):
+        set_constraints(min_ratio, max_ratio)
+    else:
+        set_constraints(0,1)
+
 
     
     propllent_mass = calculate_propellent_mass(height, diameter, density)
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
-    set_constraints(min_ratio, max_ratio)
 
     bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
     stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
     stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
+
     update_mass_ratio_visual()
     update_table()
     update_graph()
@@ -283,6 +288,7 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
     with dpg.tree_node(label = "Constraints"):
+        dpg.add_checkbox(label = "Constrain Optimization", default_value = True, tag = "constrained")
         dpg.add_input_float(label = "Min stage size", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
         dpg.add_input_float(label = "Max stage size", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
         
