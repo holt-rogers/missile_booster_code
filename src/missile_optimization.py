@@ -83,10 +83,6 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
                 best_ratios = [mr1, mr2, mr3]
     return best_ratios
 
-
-
-
-
 def delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellent):
     g =  9.80665
     pl = payload
