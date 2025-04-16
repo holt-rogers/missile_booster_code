@@ -58,7 +58,7 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
     return best_ratios
 
 
-def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn, booster_v = []):
+def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn, booster_v = [], booster_ratio=[]):
     # calculate mass ratio of the booster stage
     global min_size, max_size
     mr1 = (mass_propellant + mass_structure + payload) * (1  - e**(-time_to_burn/(2*isp))) / mass_propellant
@@ -71,11 +71,12 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
     for proportion in range(0, 1001):
         mr2 = proportion/1000
         mr3 = 1 - mr2 - mr1
-        if mr3 <= 0:
+        if mr3 < 0:
             continue
 
         v = sum(list(delta_v(mr1, mr2, mr3, isp, payload, mass_structure, mass_propellant)))
         booster_v.append(v)
+        booster_ratio.append(mr2)
         if v > best_v:
             if max([mr1, mr2, mr3]) <= max_size and  min([mr1, mr2, mr3]) >= min_size:
                 best_v = v

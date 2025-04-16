@@ -26,6 +26,7 @@ btotal_v = None
 heatmap_v = []
 
 booster_v = []
+booster_ratio = []
 
 x_propellent = []
 graph_velocity = []
@@ -36,9 +37,11 @@ max_ratio = 0.8
 
 def on_click():
     global stage_r1, stage_r2, stage_r3, isp, payload, time_to_burn, table, bstage_r1, bstage_r2, bstage_r3
-    global diameter, height, density, structural_efficiency, heatmap_v, booster_v
+    global diameter, height, density, structural_efficiency, heatmap_v, booster_v, booster_ratio
+    
     heatmap_v.clear()
     booster_v.clear()
+    booster_ratio.clear()
 
     isp = dpg.get_value("isp")
     payload = dpg.get_value("payload")
@@ -60,7 +63,7 @@ def on_click():
     propllent_mass = calculate_propellent_mass(height, diameter, density)
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
-    bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
+    bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v, booster_ratio=booster_ratio)
     stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
     stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
 
@@ -191,13 +194,13 @@ def update_graph():
     generate_trajectory(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass, [], graph_booster_velocity)
 
     dpg.set_axis_limits("x_axis_traj", min(x_propellent), max(x_propellent))
-    dpg.set_axis_limits("y_axis_traj", 0, max(graph_velocity) + 1000)
+    dpg.set_axis_limits("y_axis_traj", 0, max(graph_velocity) + max(graph_velocity)*0.3)
     dpg.configure_item("p_without", x = x_propellent, y = graph_velocity)
     dpg.configure_item("p_with", x = x_propellent, y = graph_booster_velocity)
 
     dpg.configure_item("heat_series", x = heatmap_v)
     dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
-    dpg.configure_item("booster_optimization", y=booster_v)
+    dpg.configure_item("booster_optimization", x= booster_ratio, y=booster_v)
     
 def update():
     pass
@@ -208,7 +211,7 @@ structure_mass = find_structure_mass(structural_efficiency, payload, propllent_m
 
 stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
 stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
-bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v)
+bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v, booster_ratio=booster_ratio)
 bstage_r1, bstage_r2, bstage_r3 = round(bstage_r1, 3), round(bstage_r2,3), round(bstage_r3,3)
 generate_trajectory(stage_r1, stage_r2, stage_r3, isp, payload,structure_mass, propllent_mass, x_propellent, graph_velocity)
 generate_trajectory(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass, [], graph_booster_velocity)
@@ -242,7 +245,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             
 
             dpg.set_axis_limits("x_axis_traj", min(x_propellent), max(x_propellent))
-            dpg.set_axis_limits("y_axis_traj", min(graph_velocity), max(graph_velocity) + 1000)
+            dpg.set_axis_limits("y_axis_traj", 0, max(graph_velocity) + max(graph_velocity)*0.3)
     
 
             dpg.add_line_series(x_propellent, graph_velocity, parent="y_axis_traj", label = "Without Booster", tag = "p_without")
@@ -267,7 +270,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.set_axis_limits("x_axis", 0, 1.2)
             dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
 
-            dpg.add_line_series([i/1000 for i in range(0, 1001)], booster_v, parent="y_axis", tag = "booster_optimization")
+            dpg.add_line_series(booster_ratio, booster_v, parent="y_axis", tag = "booster_optimization")
 
 # window for settings
 with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,150], max_size = [300,150], no_title_bar=False):
