@@ -187,6 +187,7 @@ def update_graph():
     v1, v2, v3 = delta_v(stage_r1, stage_r2, stage_r3, isp, payload,ms, mp)
     bv1, bv2, bv3 = delta_v(bstage_r1, bstage_r2, bstage_r3, isp, payload,ms, mp)
 
+    dpg.set_axis_limits("y_bar", 0, v1 + v2 + v3 + (v1 + v2 + v3)/10)
     dpg.configure_item("bar_series_without", x=[10, 20, 30], y=[v1, v1 + v2, v1 + v2 + v3])
     dpg.configure_item("bar_series_with", x=[11, 21, 31],y=[bv1, bv1 + bv2, bv1+bv2+bv3])
 
@@ -233,7 +234,8 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
                             
                 
             # create y axis
-            with dpg.plot_axis(dpg.mvYAxis, label="V (m/s)"):
+            with dpg.plot_axis(dpg.mvYAxis, label="V (m/s)", tag = "y_bar"):
+
                 dpg.set_axis_limits(dpg.last_item(), 0, v1 + v2 + v3 + (v1 + v2 + v3)/10)
                 dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series_without", label="Without Booster", weight=1)
                 dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], tag="bar_series_with", label="With Booster", weight=1)
