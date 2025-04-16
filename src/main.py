@@ -269,7 +269,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis", lock_min=True, lock_max=True)  
             
 
-            dpg.set_axis_limits("x_axis", 0, 1.2)
+            dpg.set_axis_limits("x_axis", 0, 1)
             dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
 
             dpg.add_line_series(booster_ratio, booster_v, parent="y_axis", tag = "booster_optimization")
