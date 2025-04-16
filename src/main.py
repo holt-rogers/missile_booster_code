@@ -337,7 +337,7 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
         # use add_table_column to add columns to the table,
         # table columns use child slot 0
         dpg.add_table_column(label = "Stage")
-        dpg.add_table_column(label = "Size")
+        dpg.add_table_column(label = "MF")
         dpg.add_table_column(label = "MR")
         dpg.add_table_column(label = "V")
 
@@ -369,7 +369,7 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
         # use add_table_column to add columns to the table,
         # table columns use child slot 0
         dpg.add_table_column(label = "Stage")
-        dpg.add_table_column(label = "Size")
+        dpg.add_table_column(label = "MF")
         dpg.add_table_column(label = "MR")
         dpg.add_table_column(label = "V")
 
