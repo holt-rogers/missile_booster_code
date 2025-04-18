@@ -199,7 +199,10 @@ def update_graph():
     dpg.configure_item("p_without", x = x_propellent, y = graph_velocity)
     dpg.configure_item("p_with", x = x_propellent, y = graph_booster_velocity)
 
-    dpg.configure_item("heat_series", x = heatmap_v)
+    dpg.configure_item("colormap_legend", min_scale = get_lowest_v(), max_scale = max(heatmap_v))
+
+    dpg.configure_item("heat_series", x = heatmap_v, scale_min=get_lowest_v(), scale_max=max(heatmap_v))
+
     dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
     dpg.configure_item("booster_optimization", x= booster_ratio, y=booster_v)
     
@@ -256,7 +259,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
     with dpg.tree_node(label = "Optimization Process", default_open = True):
         dpg.add_text("Without Pop-out Booster")
         with dpg.group(horizontal=True):
-            dpg.add_colormap_scale(min_scale=get_lowest_v(), max_scale=max(heatmap_v), height=200, colormap = dpg.mvPlotColormap_Plasma)
+            dpg.add_colormap_scale(min_scale=get_lowest_v(), max_scale=max(heatmap_v), height=200, colormap = dpg.mvPlotColormap_Plasma, tag = "colormap_legend")
             with dpg.plot(label="V compared to Stage Mass Fraction", no_mouse_pos=True, height=200, width=-1):
                 dpg.bind_colormap(dpg.last_item(), dpg.mvPlotColormap_Plasma)  
                 dpg.add_plot_axis(dpg.mvXAxis, label="Stage 1 Mass Fraction", lock_min=True, lock_max=True, no_gridlines=True, no_tick_marks=True)
@@ -395,7 +398,7 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
 
 dpg.create_viewport(resizable=False, max_height=500, max_width=900, title="Missile Booster Code")
 light_theme = create_theme_imgui_light()
-#dpg.bind_theme(light_theme)
+dpg.bind_theme(light_theme)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 

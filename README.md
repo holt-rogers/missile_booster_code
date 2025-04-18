@@ -71,4 +71,11 @@ Run the file `src/main.py`
 
 
 
+
 ### Performance Metrics
+
+See `performance_test.py` for methods.
+
+Average optimization time: 0.5349910080000041 s
+
+![alt text](graphs/time_test.png "Title")
