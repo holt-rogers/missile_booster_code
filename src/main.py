@@ -398,7 +398,7 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
 
 dpg.create_viewport(resizable=False, max_height=500, max_width=900, title="Missile Booster Code")
 light_theme = create_theme_imgui_light()
-dpg.bind_theme(light_theme)
+#dpg.bind_theme(light_theme)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 
