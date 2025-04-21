@@ -16,6 +16,8 @@ def calculate_propellent_mass(height, diameter, density):
     return height * (diameter/2)**2 * pi * density
 
 def find_structure_mass(efficiency, payload, propellent):
+    if efficiency == 0:
+        return 0
     return (propellent + payload)/ efficiency
 
 def get_lowest_v():

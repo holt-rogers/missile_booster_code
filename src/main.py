@@ -285,9 +285,9 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
     dpg.add_text("Advanced Variables")
     with dpg.tree_node(label="Rocket Constants"):
 
-        dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001, tag = "isp")
-        dpg.add_input_float(label="Fuel Density (kg/m^3)", width=100, step = 0, default_value=density, min_value=0, min_clamped=True, tag = "density")
-        dpg.add_input_float(label="Structural Efficieny", width=100, step = 0, default_value=structural_efficiency, min_value=0.0, min_clamped=True, tag = "efficiency")
+        dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=10, tag = "isp")
+        dpg.add_input_float(label="Fuel Density (kg/m^3)", width=100, step = 0, default_value=density, min_value=10, min_clamped=True, tag = "density")
+        dpg.add_input_float(label="Structural Efficieny", width=100, step = 0, default_value=structural_efficiency, min_value=1, min_clamped=True, tag = "efficiency")
 
     with dpg.tree_node(label = "Problem Specifications"):
         dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True, tag = "payload")
