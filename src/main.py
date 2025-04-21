@@ -195,7 +195,7 @@ def update_graph():
     generate_trajectory(bstage_r1, bstage_r2, bstage_r3, isp, payload,structure_mass, propllent_mass, [], graph_booster_velocity)
 
     dpg.set_axis_limits("x_axis_traj", min(x_propellent), max(x_propellent))
-    dpg.set_axis_limits("y_axis_traj", 0, max(graph_velocity) + max(graph_velocity)*0.3)
+    dpg.set_axis_limits("y_axis_traj", 0, max(graph_velocity) * 1.3)
     dpg.configure_item("p_without", x = x_propellent, y = graph_velocity)
     dpg.configure_item("p_with", x = x_propellent, y = graph_booster_velocity)
 
@@ -203,7 +203,7 @@ def update_graph():
 
     dpg.configure_item("heat_series", x = heatmap_v, scale_min=get_lowest_v(), scale_max=max(heatmap_v))
 
-    dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
+    dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) * 1.3)
     dpg.configure_item("booster_optimization", x= booster_ratio, y=booster_v)
     
 def update():
@@ -287,18 +287,18 @@ with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no
 
         dpg.add_input_float(label="ISP (s)", width=100, step=0, default_value=isp, min_clamped=True, min_value=0.001, tag = "isp")
         dpg.add_input_float(label="Fuel Density (kg/m^3)", width=100, step = 0, default_value=density, min_value=0, min_clamped=True, tag = "density")
-        dpg.add_input_float(label="Structural Efficieny", width=100, step = 0, default_value=structural_efficiency, min_value=0.001, min_clamped=True, tag = "efficiency")
+        dpg.add_input_float(label="Structural Efficieny", width=100, step = 0, default_value=structural_efficiency, min_value=0.0, min_clamped=True, tag = "efficiency")
 
     with dpg.tree_node(label = "Problem Specifications"):
         dpg.add_input_float(label="pay load (kg)", width=100, step = 0, default_value=payload, min_value=0, min_clamped=True, tag = "payload")
-        dpg.add_input_float(label="Stack Height (m)", width=100, step = 0, default_value=height, min_value=0, min_clamped=True, tag = "height")
-        dpg.add_input_float(label="Rocket Diameter (m)", width=100, step = 0, default_value=diameter, min_value=0, min_clamped=True, tag = "diameter")
+        dpg.add_input_float(label="Stack Height (m)", width=100, step = 0, default_value=height, min_value=0.001, min_clamped=True, tag = "height")
+        dpg.add_input_float(label="Rocket Diameter (m)", width=100, step = 0, default_value=diameter, min_value=0.001, min_clamped=True, tag = "diameter")
         dpg.add_input_float(label="Pop-out burn time (s)", width=100, step = 0, default_value=time_to_burn, min_value=0.001, min_clamped=True, tag = "burn_time")
     
     with dpg.tree_node(label = "Constraints"):
         dpg.add_checkbox(label = "Constrain Optimization", default_value = True, tag = "constrained")
-        dpg.add_input_float(label = "Min mass fraction", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 1, min_clamped=True, tag= "min")
-        dpg.add_input_float(label = "Max mass fraction", width=100, step = 0, default_value=max_ratio, min_value=0, max_value = 1, min_clamped=True, tag = "max")
+        dpg.add_input_float(label = "Min mass fraction", width=100, step = 0, default_value=min_ratio, min_value=0, max_value = 0.331, min_clamped=True, max_clamped = True,tag= "min")
+        dpg.add_input_float(label = "Max mass fraction", width=100, step = 0, default_value=max_ratio, min_value=0.335, max_value = 1, min_clamped=True, max_clamped = True, tag = "max")
         
 
 
