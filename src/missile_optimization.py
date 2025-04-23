@@ -23,7 +23,7 @@ def find_structure_mass(efficiency, payload, propellent):
 def get_lowest_v():
     return lowest_v
 
-# this functions returns the proportion of each size
+# this functions returns the mass fractions
 # the name is really misleading, my bad
 def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap = []):
     global lowest_v
@@ -49,7 +49,7 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
             v = sum(list(delta_v(mr1_2, mr2_2, mr3_2, isp, payload, mass_structure, mass_propellant)))
             if (mr1 - 1) % 10 == 0 and (mr2 - 1) % 10 == 0:
                 heatmap.append(v)
-            #heatmap.append(v)
+
             if v > best_v:
                 if max([mr1_2, mr2_2, mr3_2]) <= max_size and  min([mr1_2, mr2_2, mr3_2]) >= min_size:
                     best_v = v

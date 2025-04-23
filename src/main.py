@@ -278,9 +278,9 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.add_line_series(booster_ratio, booster_v, parent="y_axis", tag = "booster_optimization")
 
 # window for settings
-with dpg.window(label="Optomization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,150], max_size = [300,150], no_title_bar=False):
+with dpg.window(label="Optimization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,150], max_size = [300,150], no_title_bar=False):
     #dpg.add_text("Mass Ratio Optomization For a 3-Stage Rocket")
-    dpg.add_button(label="Update Optomization", callback=on_click)
+    dpg.add_button(label="Update Optimization", callback=on_click)
     
     dpg.add_text("Advanced Variables")
     with dpg.tree_node(label="Rocket Constants"):
