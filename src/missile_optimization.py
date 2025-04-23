@@ -15,12 +15,12 @@ def calculate_propellent_mass(height, diameter, density):
     # volume of cylinder times density
     return height * (diameter/2)**2 * pi * density
 
-def find_structure_mass(efficiency, payload, propellent):
-    if efficiency == 0:
+def find_structure_mass(efficiency, payload, propellent): #takes structural efficiency, which is an indicator of the amount of stress a structure can take for the mass
+    if efficiency == 0:                                   #and determines what the structural mass would be based on the non structural mass (payload + propellant)
         return 0
-    return (propellent + payload)/ efficiency
+    return (propellent + payload)/ efficiency 
 
-def get_lowest_v():
+def get_lowest_v(): #base initiator for the code to call for the lowest speed
     return lowest_v
 
 # this functions returns the proportion of each size
