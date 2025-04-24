@@ -267,6 +267,11 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
                     dpg.add_heat_series(heatmap_v, 100, 100, tag="heat_series",scale_min=get_lowest_v(), scale_max=max(heatmap_v), format="")
         dpg.add_text("With Pop-out Booster")
 
+        # create a theme for the plot
+        with dpg.theme(tag="plot_theme"):
+            with dpg.theme_component(dpg.mvLineSeries):
+                dpg.add_theme_color(dpg.mvPlotCol_Line, (76, 114, 176), category=dpg.mvThemeCat_Plots)
+
         with dpg.plot(label = "V compared to Stage Mass Fraction"):
             dpg.add_plot_axis(dpg.mvXAxis, label="Stage 2 Mass Fraction", tag = "x_axis", lock_min=True, lock_max=True)
             dpg.add_plot_axis(dpg.mvYAxis, label="V (m/s)", tag="y_axis", lock_min=True, lock_max=True)  
@@ -276,6 +281,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
             dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) + 1000)
 
             dpg.add_line_series(booster_ratio, booster_v, parent="y_axis", tag = "booster_optimization")
+            dpg.bind_item_theme("booster_optimization", "plot_theme")
 
 # window for settings
 with dpg.window(label="Optimization Settings", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,150], max_size = [300,150], no_title_bar=False):
