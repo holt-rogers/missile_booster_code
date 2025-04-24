@@ -269,7 +269,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
                 dpg.add_bar_series([10, 20, 30], [v1, v1 + v2, v1 + v2 + v3],  tag="bar_series_without", label="Without Booster", weight=1)
                 dpg.add_bar_series([11, 21, 31], [bv1, bv1 + bv2, bv1+bv2+bv3], tag="bar_series_with", label="With Booster", weight=1)
         
-        dpg.add_text("The total velocity compared to propellent used for both rockets.")
+        dpg.add_text("The total velocity compared to propellent used.")
         # line graph showing the velocity of the rocket as propellent is used
         with dpg.plot(label = "V as propellent is used"):
             dpg.add_plot_legend()
