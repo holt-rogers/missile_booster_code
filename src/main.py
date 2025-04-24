@@ -12,9 +12,14 @@ height = 10
 diameter = 1
 
 # rocket constants
-density = 1500 # find source
-isp = 300
+density = 1600 # average of the density range for AP-HTPB solid propellent, commonly used in rocket fuel 
+#https://www.sciencedirect.com/science/article/pii/S1878535215000106#b0020
+
+isp = 265 # using ISP for Al-AP-HTPB propellent, a common solid rocket fuel used in rockets such as the SM-3
+#https://www.generalstaff.org/BBOW/Progs/FlySIM/SM3_Thesis.pdf
+
 structural_efficiency = 4
+
 
 # mass fractions for each stage. with and without boster
 mf1, mf2, mf3 = 0,0,0
