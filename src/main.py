@@ -30,6 +30,7 @@ table = []
 b_table = []
 total_v = None
 btotal_v = None
+bdifference_v = None
 
 heatmap_v = []
 booster_v = []
@@ -174,8 +175,8 @@ def update_table():
     # repeate for booster stage
     v1, v2, v3 = delta_v(bmf1, bmf2, bmf3, isp, payload, ms, mp)
     v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
-    dv = v1 + v2 + v3
-    dv = round(dv, 2)
+    dv_booster = v1 + v2 + v3
+    dv_booster = round(dv_booster, 2)
 
     mr1, mr2, mr3 = mass_ratios(bmf1, bmf2, bmf3, payload, ms, mp)
     mr1, mr2, mr3 = round(mr1, 3), round(mr2, 3), round(mr3, 3)
@@ -189,7 +190,10 @@ def update_table():
     for i in range(2,-1,-1):
         for j in range(3,-1,-1):
             dpg.set_value(b_table[i][j], str(dat[i][j]))   
-    dpg.set_value(btotal_v, f"Delta V: {dv} m/s") 
+    dpg.set_value(btotal_v, f"Delta V: {dv_booster} m/s") 
+
+    percent_difference = round((dv-dv_booster)/dv * 100,1)
+    dpg.set_value(bdifference_v, f"Delta V loss: {percent_difference}%") 
 
 # updates all the graphs
 def update_graph():
@@ -239,7 +243,7 @@ generate_trajectory(mf1, mf2, mf3, isp, payload,structure_mass, propllent_mass, 
 generate_trajectory(bmf1, bmf2, bmf3, isp, payload,structure_mass, propllent_mass, [], graph_booster_velocity)
 
 # graphs window
-with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,460], max_size = [459, 460], pos=[424, 0], no_focus_on_appearing=True) as plots:
+with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[459,472], max_size = [459, 472], pos=[424, 0], no_focus_on_appearing=True) as plots:
     # section with bar and trajectory graphs
     with dpg.tree_node(label = "Velocity Comparisons of Optimized Rockets", default_open = True):
         dpg.add_text("The total velocity after each stage. ")
@@ -371,7 +375,7 @@ with dpg.window(label="Visualizations", no_resize=True, no_close=True, no_move=T
     
 
 # data table showing velocity, mass fraction and mass ratio for both rockets
-with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,310],max_size=[300,310], pos=[0, 150], no_focus_on_appearing=True):
+with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_collapse=True, min_size=[300,330],max_size=[300,330], pos=[0, 150], no_focus_on_appearing=True):
     dpg.add_text("Optimized Rocket")
     with dpg.table(header_row=True, row_background=True,
                    borders_innerH=True, borders_outerH=True, borders_innerV=True,
@@ -428,12 +432,12 @@ with dpg.window(label="Data",no_resize=True, no_close=True, no_move=True, no_col
                     b_table[-1].append(dpg.add_text(data[i][j]))
 
     btotal_v = dpg.add_text("IF YOU CAN READ THIS IT DIDNT WORK")
-
+    bdifference_v = dpg.add_text("Delta V loss: 8.1%")
     # update values in table based on optimization
     update_table()
 
 
-dpg.create_viewport(resizable=False, max_height=500, max_width=900, title="Missile Booster Code")
+dpg.create_viewport(resizable=False, max_height=510, max_width=900, title="Missile Booster Code")
 
 # light theme used for screenshots of graphs
 light_theme = create_theme_imgui_light()
