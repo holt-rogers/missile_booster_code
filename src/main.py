@@ -64,7 +64,7 @@ def on_click():
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
     bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v, booster_ratio=booster_ratio)
-    stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
+    stage_r1, stage_r2, stage_r3 = optimize_mass_fraction(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
     stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
 
     update_mass_ratio_visual()
@@ -213,7 +213,7 @@ set_constraints(min_ratio, max_ratio)
 propllent_mass = calculate_propellent_mass(height, diameter, density)
 structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
-stage_r1, stage_r2, stage_r3 = optimize_mass_ratio(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
+stage_r1, stage_r2, stage_r3 = optimize_mass_fraction(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
 stage_r1, stage_r2, stage_r3 = round(stage_r1, 3), round(stage_r2,3), round(stage_r3,3)
 bstage_r1, bstage_r2, bstage_r3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v, booster_ratio=booster_ratio)
 bstage_r1, bstage_r2, bstage_r3 = round(bstage_r1, 3), round(bstage_r2,3), round(bstage_r3,3)
