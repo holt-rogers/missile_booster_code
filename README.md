@@ -1,4 +1,4 @@
-# Optomization for a three stage missile
+# Optimization for a three stage missile
 
 An application for optomizing the mass ratios for a multi-stage rocket. 
 

@@ -35,7 +35,7 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
 
 
     # looping through the possible range of fuel we can use 
-    for mr2 in range(1000, -1, -1):
+    for mr2 in range(1000, -1, -1): #mr1 = mass ratio for pop out booster/first stage. mr2 = mass ratio for second stage. mr3 = mass ratio for 3rd stage
         for mr1 in range(0, 1001):
             
             mr3 = 1000 - mr1 - mr2
@@ -48,7 +48,7 @@ def optimize_mass_ratio(isp, payload, mass_structure, mass_propellant, heatmap =
             mr1_2, mr2_2, mr3_2 = mr1/1000, mr2/1000, mr3/1000
             v = sum(list(delta_v(mr1_2, mr2_2, mr3_2, isp, payload, mass_structure, mass_propellant)))
             if (mr1 - 1) % 10 == 0 and (mr2 - 1) % 10 == 0:
-                heatmap.append(v)
+                heatmap.append(v) #creates heat map of optimization where the heat gradient shows where the most optimized results are
 
             if v > best_v:
                 if max([mr1_2, mr2_2, mr3_2]) <= max_size and  min([mr1_2, mr2_2, mr3_2]) >= min_size:
