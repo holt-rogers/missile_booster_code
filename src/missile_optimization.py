@@ -1,7 +1,7 @@
 from math import log, pi, e
 import dearpygui.dearpygui as dpg
 
-# lowest found veliocity : used for plot configuration by GUI
+# lowest found velocity : used for plot configuration by GUI
 lowest_v = float("inf")
 
 # constraints to the rocket
@@ -16,7 +16,7 @@ def set_constraints(mn, mx):
     min_size = mn
     max_size = mx
 
-
+# Calculates the propellant mass based on cylindrical tank volume and propellant density
 def calculate_propellent_mass(height, diameter, density):
     # volume of cylinder times density
     return height * (diameter/2)**2 * pi * density
@@ -34,8 +34,8 @@ def optimize_mass_fraction(isp, payload, mass_structure, mass_propellant, heatma
     global lowest_v
     global min_size, max_size
 
-    best_v = float("-inf") 
-    best_ratios = []
+    best_v = float("-inf") # Initialize the best velocity as very low so first inputted value is highest
+    best_ratios = [] # Store the best mass fraction combination
 
 
 
@@ -55,11 +55,13 @@ def optimize_mass_fraction(isp, payload, mass_structure, mass_propellant, heatma
         
             # turn the integers into proportions
             mf1_2, mf2_2, mf3_2 = mf1/1000, mf2/1000, mf3/1000
+
+            # Sum the delta-v's from each stage
             v = sum(list(delta_v(mf1_2, mf2_2, mf3_2, isp, payload, mass_structure, mass_propellant)))
             if (mf1 - 1) % 10 == 0 and (mf2 - 1) % 10 == 0:
                 heatmap.append(v) # add data of optimization to create heatmap where the heat gradient shows where the most optimized results are
 
-            # compare to current best
+            # compare to current best and store if compared value is greater
             if v > best_v:
                 if max([mf1_2, mf2_2, mf3_2]) <= max_size and  min([mf1_2, mf2_2, mf3_2]) >= min_size:
                     best_v = v
@@ -75,8 +77,9 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
 
     global min_size, max_size
 
-    # calculate the size of the booster stage
+    # calculate the size of the booster stage based on burn time
     mf1 = (mass_propellant + mass_structure + payload) * (1  - e**(-time_to_burn/(2*isp))) / mass_propellant
+    #keeps mf1 within size constraints
     mf1 = max([min_size, mf1])
     mf1 = min([max_size, mf1])
 
@@ -105,7 +108,7 @@ def optimize_booster(isp, payload, mass_structure, mass_propellant, time_to_burn
                 best_ratios = [mf1, mf2, mf3]
     return best_ratios
 
-# returns a list of the chagne in velocity for each stage 
+# returns a list of the change in velocity for each stage 
 def delta_v(mf1, mf2, mf3, isp, payload, mass_structure, mass_propellent):
     global g
 
@@ -129,19 +132,22 @@ def delta_v(mf1, mf2, mf3, isp, payload, mass_structure, mass_propellent):
 
     return v1, v2, v3
 
-# returns the mass ratios
+# returns the mass ratios (initial mass/final mass)
 # defined as final mass over initial mass of each stage
 def mass_ratios(mf1, mf2, mf3, payload, mass_structure, mass_propellent):
     pl = payload
+
+     # Propellant masses
     mp1 = mf1 * mass_propellent
     mp2 = mf2 * mass_propellent
     mp3 = mf3 * mass_propellent
 
+     # Structure masses
     ms1 = mf1 * mass_structure
     ms2 = mf2 * mass_structure
     ms3 = mf3 * mass_structure
 
-
+    # Mass ratios based on remaining payload and structure after each burn
     mr3 = 1 + mp3/(ms3 + pl)
     mr2 = 1 + mp2/(mp3 + ms3 + ms2 + pl)
     mr1 = 1 + mp1/(mp3 + ms3 + mp2 + ms2 + ms1 + pl)
@@ -152,7 +158,7 @@ def mass_ratios(mf1, mf2, mf3, payload, mass_structure, mass_propellent):
 def generate_trajectory(mf1, mf2, mf3, isp, payload, mass_structure, mass_propellent, x_points, y_points):
     global g
 
-    # points in the graph
+    # number of points in the graph
     point_count = 1000
 
     pl = payload
@@ -173,12 +179,15 @@ def generate_trajectory(mf1, mf2, mf3, isp, payload, mass_structure, mass_propel
 
         # calculate piece wise function depending on stage progression
         if i/point_count < mf1:
+            # Stage 1
             mp = mass_propellent * i/point_count
             y = g * isp * log(1 + mp /(mp3 + ms3 + mp2 + ms2 + ms1 + pl))
         elif i/point_count < mf1 + mf2:
+             # Stage 2
             mp = mass_propellent * (i/point_count - mf1)
             y = v1 + g * isp * log(1 + mp /(mp3 + ms3 + ms2 + pl))
         else:
+            # Stage 3
             mp = mass_propellent * (i/point_count - mf1 - mf2)
             y = v1 + v2 + g * isp * log(1 + mp/(ms3 + pl))
 
