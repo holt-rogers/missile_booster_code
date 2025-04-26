@@ -265,7 +265,7 @@ with dpg.window(label="Graphs", no_resize=True, no_close=True, no_move=True, no_
     with dpg.tree_node(label = "Velocity Comparisons of Optimized Rockets", default_open = True):
         dpg.add_text("The total velocity after each stage. ")
 
-        # bar series of each stage
+        # bar series showing cumulative delta-v after each stage
         with dpg.plot(label = "V after Stage", no_mouse_pos = True):
             v1, v2, v3 = delta_v(mf1, mf2, mf3, isp, payload,structure_mass, propllent_mass)
             bv1, bv2, bv3 = delta_v(bmf1, bmf2, bmf3, isp, payload,structure_mass, propllent_mass)
