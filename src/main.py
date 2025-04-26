@@ -6,10 +6,10 @@ dpg.create_context()
 
 # defualt rocket problem
 # based on information given by client
-time_to_burn = 10
-payload = 250
-height = 10
-diameter = 1
+time_to_burn = 10 #seconds
+payload = 250 #kg
+height = 10 #meters
+diameter = 1 #meters
 
 # rocket constants
 density = 1600 # average of the density range for AP-HTPB solid propellent, commonly used in rocket fuel 
@@ -72,7 +72,7 @@ def on_click():
         set_constraints(0,1)
 
 
-    # calculated optimied data
+    # calculated optimized data
     propllent_mass = calculate_propellent_mass(height, diameter, density)
     structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
@@ -90,7 +90,7 @@ def on_click():
 def update_mass_ratio_fraction():
     global mf1, mf2, mf3, bmf1, bmf2, bmf3
 
-    # offset of rockets
+    # offset of rockets, starting point x and y for rocket visualization imagery
     pos_x = 30
     pos_y = 10
 
@@ -98,31 +98,36 @@ def update_mass_ratio_fraction():
     width = 30
     height = 150
 
+    #_____ Main Rocket Mass Fraction Visualization_____
+    
     # calculate top left and bottom right for each stage
-    pos3min = [pos_x, pos_y]
-    pos3max = [pos_x + width, pos_y + mf3*height]
+    pos3min = [pos_x, pos_y] # top left corner of stage 3 visual
+    pos3max = [pos_x + width, pos_y + mf3*height] # bottom right corner for stage 3
 
-    pos2min = [pos_x, pos3max[1]]
-    pos2max = [pos_x + width, pos2min[1] + height * mf2]
+    
+    pos2min = [pos_x, pos3max[1]] # top left corner of stage 2 visual
+    pos2max = [pos_x + width, pos2min[1] + height * mf2] # bottom right corner for stage 2
 
-    pos1min = [pos_x, pos2max[1]]
-    pos1max = [pos_x + width, pos1min[1] + height * mf1]
+    pos1min = [pos_x, pos2max[1]]  # top left corner of stage 2 visual
+    pos1max = [pos_x + width, pos1min[1] + height * mf1] # bottom right corner for stage 2
 
     # visualization colors
     border_color = (0,0,0,255)
 
-    color1 = (144, 169, 237, 255)
-    color2 = (182, 198, 242, 255)
-    color3 = (219, 227, 248, 255)
+    color1 = (144, 169, 237, 255) #stage 1 color
+    color2 = (182, 198, 242, 255) #stage 2 color
+    color3 = (219, 227, 248, 255) #stage 3 color
 
     # update rectangles
     dpg.configure_item("mr1", pmin=pos1min, pmax=pos1max, color=border_color, thickness=1, fill=color1)
     dpg.configure_item("mr2", pmin=pos2min, pmax=pos2max, color=border_color, thickness=1, fill=color2)
     dpg.configure_item("mr3", pmin=pos3min, pmax=pos3max, color=border_color, thickness=1, fill=color3)
-
+    #configure text labels for rocket stages positioned at the center of the rectangle and to the right (not overlapping)
     dpg.configure_item("mr1_text", text="S1", pos = (pos1max[0] + 10, (pos1min[1] + pos1max[1])/2 -6), size = 12)
     dpg.configure_item("mr2_text", text="S2", pos = (pos2max[0] + 10, (pos2min[1] + pos2max[1])/2 -6), size = 12)
     dpg.configure_item("mr3_text", text="S3", pos = (pos3max[0] + 10, (pos3min[1] + pos3max[1])/2 -6), size = 12)
+
+    #_____Pop-Out Booster Rocket Visualization_____
 
     # repeate for booster stage
     pos3min = [pos_x, pos_y]
@@ -144,35 +149,43 @@ def update_mass_ratio_fraction():
 
 # updates the data tables
 def update_table():
+    # Access global variables for mass fractions, ISP, display elements, and rocket parameters
     global mf1, mf2, mf3, isp, table, total_v, payload, bmf1, bmf2, bmf3
     global diameter,height,structural_efficiency,density
 
-    # calculate variables for rocket without booster
+    # --- Calculate Variables for Base Rocket (without booster) ---
+
+    # Calculate total propellant mass using geometry and density
     mp = calculate_propellent_mass(height, diameter, density)
+    # Calculate structural mass needed to support the payload and propellant
     ms = find_structure_mass(structural_efficiency, payload, mp)
-    
+
+    # Compute delta-v for each stage using base mass fractions
     v1, v2, v3 = delta_v(mf1, mf2, mf3, isp, payload, ms, mp)
+    # Round delta-v values to 2 decimal places for display
     v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
     dv = v1 + v2 + v3
     dv = round(dv, 2)
-
+    # Compute mass ratios for each stage (m0/m1)
     mr1, mr2, mr3 = mass_ratios(mf1, mf2, mf3, payload, ms, mp)
     mr1, mr2, mr3 = round(mr1, 3), round(mr2, 3), round(mr3, 3)
 
+    # Create a data matrix [stage, mass fraction, mass ratio, delta-v] from top to bottom stage
     dat = [
         [3, round(mf3,3), mr3, v3],
         [2, round(mf2,3), mr2, v2],
         [1, round(mf1,3), mr1, v1]
     ]
 
-    # update table
+    # Fill GUI table for base rocket by looping through data matrix
     for i in range(2,-1,-1):
         for j in range(3,-1,-1):
             dpg.set_value(table[i][j], str(dat[i][j]))
-
+    # Update total delta-v display text
     dpg.set_value(total_v, f"Delta V: {dv} m/s")
 
-    # repeate for booster stage
+    # --- Repeat Calculations for Booster Rocket (with booster) ---
+    
     v1, v2, v3 = delta_v(bmf1, bmf2, bmf3, isp, payload, ms, mp)
     v1, v2, v3 = round(v1, 2), round(v2, 2), round(v3, 2)
     dv_booster = v1 + v2 + v3
@@ -203,9 +216,10 @@ def update_graph():
     x_propellent.clear()
     graph_booster_velocity.clear()
     graph_velocity.clear()
-
+    # Recalculate propellant and structure mass based on current rocket dimensions and efficiency
     mp = calculate_propellent_mass(height, diameter, density)
     ms = find_structure_mass(structural_efficiency, payload, mp)
+    # Recalculate velocities without booster and with booster
     v1, v2, v3 = delta_v(mf1, mf2, mf3, isp, payload,ms, mp)
     bv1, bv2, bv3 = delta_v(bmf1, bmf2, bmf3, isp, payload,ms, mp)
 
@@ -230,13 +244,16 @@ def update_graph():
     dpg.set_axis_limits("y_axis", min(booster_v), max(booster_v) * 1.3)
     dpg.configure_item("booster_optimization", x= booster_ratio, y=booster_v)
 
-# create default optimization
+# create default optimization constraints for mass fractions
 set_constraints(min_fraction, max_fraction)
+# Calculate base propellant and structure mass
 propllent_mass = calculate_propellent_mass(height, diameter, density)
 structure_mass = find_structure_mass(structural_efficiency, payload, propllent_mass)
 
+# Run optimization to find ideal stage mass fractions without booster
 mf1, mf2, mf3 = optimize_mass_fraction(isp, payload, structure_mass, propllent_mass, heatmap=heatmap_v)
 mf1, mf2, mf3 = round(mf1, 3), round(mf2,3), round(mf3,3)
+# Run optimization to find ideal stage mass fractions with booster (pop-out stage)
 bmf1, bmf2, bmf3 = optimize_booster(isp, payload, structure_mass, propllent_mass, time_to_burn, booster_v=booster_v, booster_ratio=booster_ratio)
 bmf1, bmf2, bmf3 = round(bmf1, 3), round(bmf2,3), round(bmf3,3)
 generate_trajectory(mf1, mf2, mf3, isp, payload,structure_mass, propllent_mass, x_propellent, graph_velocity)
